@@ -34,15 +34,18 @@ public class SocialMediaActivity extends AppCompatActivity implements AdapterVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_social_media);
         setTitle("Twitter Users");
+        //List View to contain lists of users
         listView = findViewById(R.id.listView);
         tUsers = new ArrayList<>();
         adapter = new ArrayAdapter(SocialMediaActivity.this,android.R.layout.simple_list_item_checked, tUsers);
+        //This line of code is important and is required to retain the following and un following
+        // users when current user restart the app
         listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         listView.setOnItemClickListener(SocialMediaActivity.this);
 
 
         try {
-
+            //Query of all connected users except the current user
             ParseQuery<ParseUser> parseQuery = ParseUser.getQuery();
             parseQuery.whereNotEqualTo("username", ParseUser.getCurrentUser().getUsername());
             parseQuery.findInBackground(new FindCallback<ParseUser>() {
@@ -54,7 +57,11 @@ public class SocialMediaActivity extends AppCompatActivity implements AdapterVie
                         }
                         listView.setAdapter(adapter);
 
+                        //Iterating over the users
+                        // which are connected and checking those users which are in the fanOf list of the current list i.e.
+                        //those users which are being followed by the current user
                         for(String twitterUser : tUsers){
+                            //the app will crash if we don't add this line
                             if(ParseUser.getCurrentUser().getList("fanOf") != null) {
                                 if (ParseUser.getCurrentUser().getList("fanOf").contains(twitterUser)) {
                                     followedUser = followedUser + twitterUser + "\n";
@@ -96,6 +103,7 @@ public class SocialMediaActivity extends AppCompatActivity implements AdapterVie
                 startActivity(intent);
                 break;
             case R.id.sendTweet:
+                //Transit to send tweet activity
                 Intent intent1 = new Intent(SocialMediaActivity.this,SendTweetActivity.class);
                 startActivity(intent1);
                 break;
@@ -106,17 +114,20 @@ public class SocialMediaActivity extends AppCompatActivity implements AdapterVie
         return super.onOptionsItemSelected(item);
     }
 
+    //following and un following users
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         CheckedTextView checkedTextView = (CheckedTextView)view;
         if(checkedTextView.isChecked()){
             FancyToast.makeText(SocialMediaActivity.this,tUsers.get(position)+" is followed! ",
                     Toast.LENGTH_LONG,FancyToast.SUCCESS,true).show();
+            //adding the user to fanOf list
             ParseUser.getCurrentUser().add("fanOf",tUsers.get(position));
         }
         else {
             FancyToast.makeText(SocialMediaActivity.this,tUsers.get(position)+" is un-followed! ",
                     Toast.LENGTH_LONG,FancyToast.SUCCESS,true).show();
+            //Removing the user from fanOf list is not as easy as adding
             ParseUser.getCurrentUser().getList("fanOf").remove(tUsers.get(position));
             List currentUserFanOfList = ParseUser.getCurrentUser().getList("fanOf");
             ParseUser.getCurrentUser().remove("fanOf");

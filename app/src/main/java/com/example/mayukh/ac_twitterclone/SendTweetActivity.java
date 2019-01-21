@@ -41,6 +41,7 @@ public class SendTweetActivity extends AppCompatActivity implements View.OnClick
 
     }
     public void sendTweet(View view){
+        //Creating a parse object for the user's tweets
         ParseObject myTweets = new ParseObject("MyTweets");
         myTweets.put("tweet",edtSendTweet.getText().toString());
         myTweets.put("user",ParseUser.getCurrentUser().getUsername());
@@ -65,6 +66,7 @@ public class SendTweetActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View v) {
+        //Codes to display the tweets in the list View
             final ArrayList<HashMap<String, String>> tweetList = new ArrayList<>();
             final SimpleAdapter adapter = new SimpleAdapter(SendTweetActivity.this,tweetList,android.R.layout.simple_list_item_2,new String[]{"tweetUserName","tweetValue"},new int[]{android.R.id.text1,android.R.id.text2});
             try{
